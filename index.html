@@ -61,6 +61,91 @@
     text-transform:uppercase;
   }
   .brand h1 span{color:var(--gold);}
+  .terceros-toggle{
+    align-self:center;
+    display:flex;
+    align-items:center;
+    gap:5px;
+  }
+  .terceros-toggle .chev{
+    display:inline-block;
+    transition:transform 0.2s ease;
+    font-size:10px;
+  }
+  .terceros-toggle[aria-expanded="true"] .chev{transform:rotate(180deg);}
+  .terceros-toggle[aria-expanded="true"]{background:rgba(212,165,44,0.12);}
+
+  .terceros-panel{
+    border-bottom:1px solid rgba(212,165,44,0.15);
+    background:rgba(8,10,13,0.6);
+    padding:18px 28px 22px;
+  }
+  .terceros-head{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    margin-bottom:10px;
+  }
+  .terceros-title{
+    font-family:'Oswald', sans-serif;
+    font-size:15px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--gold);
+  }
+  .terceros-sub{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--text-dim);
+  }
+  .terceros-msg{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:var(--text-muted);
+    padding:10px 2px;
+  }
+  .terceros-table-wrap{overflow-x:auto;}
+  table.terceros-table{
+    border-collapse:collapse;
+    width:100%;
+    max-width:780px;
+    font-size:13px;
+  }
+  table.terceros-table th, table.terceros-table td{
+    padding:7px 12px;
+    text-align:center;
+    border-bottom:1px solid rgba(255,255,255,0.06);
+    white-space:nowrap;
+  }
+  table.terceros-table th{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    letter-spacing:0.06em;
+    color:var(--gold-soft);
+    text-transform:uppercase;
+    text-align:center;
+    border-bottom:1px solid rgba(212,165,44,0.25);
+  }
+  table.terceros-table td.rank{
+    font-family:'IBM Plex Mono', monospace;
+    color:var(--text-dim);
+  }
+  table.terceros-table td.team{
+    text-align:left;
+    font-weight:500;
+  }
+  table.terceros-table tr.clasifica td.rank{color:var(--green);}
+  table.terceros-table tr.clasifica{background:var(--green-soft);}
+  table.terceros-table tr.clasifica td:first-child{border-left:2px solid var(--green);}
+  .terceros-badge{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10px;
+    color:var(--green);
+    border:1px solid rgba(46,125,79,0.5);
+    border-radius:10px;
+    padding:1px 7px;
+    margin-left:8px;
+  }
 
   .sync-box{
     display:flex;
@@ -333,6 +418,9 @@
   <div class="brand">
     <span class="eyebrow">FIFA &middot;</span>
     <h1>Mundial <span>2026</span> — Cuadro</h1>
+    <button class="btn terceros-toggle" id="tercerosBtn" type="button" aria-expanded="false">
+      Mejores Terceros <span class="chev">▾</span>
+    </button>
   </div>
   <div class="sync-box">
     <span class="sync-dot" id="syncDot"></span>
@@ -340,6 +428,14 @@
     <button class="btn" id="refreshBtn" type="button">Actualizar</button>
   </div>
 </header>
+
+<div class="terceros-panel" id="tercerosPanel" hidden>
+  <div class="terceros-head">
+    <span class="terceros-title">Mejores terceros</span>
+    <span class="terceros-sub" id="tercerosSub">—</span>
+  </div>
+  <div id="tercerosBody"><div class="terceros-msg">Cargando…</div></div>
+</div>
 
 <div class="config-bar">
   <label for="sheetUrl">Hoja de Google:</label>
@@ -374,7 +470,9 @@
    ============================================================ */
 const CONFIG = {
   SHEET_CSV_URL: "https://docs.google.com/spreadsheets/d/1wfs1aDJSIO3jvpusA6n6kQMhBSgqJsxXlouezpvznkE/edit?usp=sharing",
-  AUTO_REFRESH_MS: 30000          // refresca solo cada 30 segundos. Pon 0 para desactivar.
+  AUTO_REFRESH_MS: 30000,         // refresca solo cada 30 segundos. Pon 0 para desactivar.
+  TERCEROS_SHEET_ID: "1wfs1aDJSIO3jvpusA6n6kQMhBSgqJsxXlouezpvznkE",
+  TERCEROS_GID: "193567831"
 };
 
 /* ---------- estructura fija del cuadro (coincide con la imagen) ---------- */
@@ -752,6 +850,75 @@ async function loadFromSheet(rawInput){
     renderBracket();
   }
 }
+
+/* ---------- panel de "mejores terceros" ---------- */
+let tercerosLoaded = false;
+let tercerosLoading = false;
+
+function renderTercerosTable(rows){
+  const body = document.getElementById("tercerosBody");
+  if(!rows.length || rows.length < 2){
+    body.innerHTML = '<div class="terceros-msg">La pestaña de terceros está vacía.</div>';
+    return;
+  }
+  const header = rows[0].map(h=>h.trim());
+  const dataRows = rows.slice(1).filter(r => r.some(c=>String(c).trim()!==""));
+
+  // detectar de forma flexible qué columna es cuál, sin importar el orden
+  const lower = header.map(h=>h.toLowerCase());
+  const find = (...names) => { for(const n of names){ const i = lower.indexOf(n); if(i>-1) return i; } return -1; };
+  const idx = {
+    grupo: find("grupo","group"),
+    equipo: find("nombre","equipo","team"),
+    pj: find("pj"), pg: find("pg"), pe: find("pe"), pp: find("pp"),
+    gf: find("gf"), gc: find("gc"), gd: find("gd"), pts: find("pts","puntos")
+  };
+
+  const labels = {grupo:"Grupo", equipo:"Equipo", pj:"PJ", pg:"PG", pe:"PE", pp:"PP", gf:"GF", gc:"GC", gd:"GD", pts:"Pts"};
+  const cols = Object.keys(idx).filter(k => idx[k] > -1);
+
+  let thead = '<th>#</th>' + cols.map(k=>`<th>${labels[k]}</th>`).join("");
+  let tbody = dataRows.map((r,i)=>{
+    const rank = i+1;
+    const cls = rank<=8 ? "clasifica" : "";
+    const cells = cols.map(k=>{
+      const val = escapeHtml(r[idx[k]] || "");
+      if(k==="equipo") return `<td class="team">${val}</td>`;
+      return `<td>${val}</td>`;
+    }).join("");
+    return `<tr class="${cls}"><td class="rank">${rank}</td>${cells}</tr>`;
+  }).join("");
+
+  document.getElementById("tercerosSub").textContent =
+    dataRows.length + " equipos · los primeros 8 avanzan a 16avos";
+  body.innerHTML = `<div class="terceros-table-wrap"><table class="terceros-table"><thead><tr>${thead}</tr></thead><tbody>${tbody}</tbody></table></div>`;
+}
+
+async function loadTerceros(force){
+  if(tercerosLoading) return;
+  if(tercerosLoaded && !force) return;
+  tercerosLoading = true;
+  const body = document.getElementById("tercerosBody");
+  body.innerHTML = '<div class="terceros-msg">Cargando…</div>';
+  try{
+    const rows = await loadViaJSONP(CONFIG.TERCEROS_SHEET_ID, CONFIG.TERCEROS_GID);
+    renderTercerosTable(rows);
+    tercerosLoaded = true;
+  }catch(err){
+    body.innerHTML = `<div class="terceros-msg" style="color:#e8b6ae">No se pudo cargar: ${escapeHtml(err.message)}</div>`;
+  }finally{
+    tercerosLoading = false;
+  }
+}
+
+document.getElementById("tercerosBtn").addEventListener("click", ()=>{
+  const panel = document.getElementById("tercerosPanel");
+  const btn = document.getElementById("tercerosBtn");
+  const open = panel.hidden;
+  panel.hidden = !open;
+  btn.setAttribute("aria-expanded", String(open));
+  if(open) loadTerceros(false);
+});
 
 /* ---------- eventos ---------- */
 document.getElementById("connectBtn").addEventListener("click", ()=>{
