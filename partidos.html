@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mundial 2026 · Resultados</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-base:#0a0d10;
+    --bg-panel:#141920;
+    --bg-panel-alt:#1b212a;
+    --gold:#d4a52c;
+    --gold-soft:#a98b3f;
+    --green:#2e7d4f;
+    --green-soft:rgba(46,125,79,0.18);
+    --amber:#c98a2c;
+    --amber-soft:rgba(201,138,44,0.16);
+    --danger:#b3453a;
+    --danger-soft:rgba(179,69,58,0.16);
+    --text-primary:#f1efe9;
+    --text-muted:#7c8389;
+    --text-dim:#4d545a;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse 1200px 600px at 50% 0%, rgba(212,165,44,0.06), transparent 60%),
+      var(--bg-base);
+    color:var(--text-primary);
+    font-family:'IBM Plex Sans', sans-serif;
+    min-height:100vh;
+  }
+
+  .page-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    padding:22px 28px 18px;
+    border-bottom:1px solid rgba(212,165,44,0.15);
+    flex-wrap:wrap;
+  }
+  .brand{display:flex; align-items:baseline; gap:10px;}
+  .brand .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.18em;
+    color:var(--gold-soft);
+    text-transform:uppercase;
+  }
+  .brand h1{
+    font-family:'Oswald', sans-serif;
+    font-weight:700;
+    font-size:26px;
+    letter-spacing:0.02em;
+    margin:0;
+    text-transform:uppercase;
+  }
+  .brand h1 span{color:var(--gold);}
+
+  .sync-box{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:var(--text-muted);
+  }
+  .sync-dot{width:8px;height:8px;border-radius:50%; background:var(--text-dim); flex-shrink:0;}
+  .sync-dot.live{background:var(--green); box-shadow:0 0 0 0 rgba(46,125,79,0.6); animation:pulse 2s infinite;}
+  .sync-dot.error{background:var(--danger);}
+  @media (prefers-reduced-motion:no-preference){
+    @keyframes pulse{
+      0%{box-shadow:0 0 0 0 rgba(46,125,79,0.55);}
+      70%{box-shadow:0 0 0 7px rgba(46,125,79,0);}
+      100%{box-shadow:0 0 0 0 rgba(46,125,79,0);}
+    }
+  }
+  .btn{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.04em;
+    background:transparent;
+    border:1px solid rgba(212,165,44,0.4);
+    color:var(--gold);
+    padding:7px 12px;
+    border-radius:3px;
+    cursor:pointer;
+    text-transform:uppercase;
+  }
+  .btn:hover{background:rgba(212,165,44,0.1);}
+  .btn:disabled{opacity:0.35; cursor:default;}
+  .btn.primary{background:var(--green); border-color:var(--green); color:#0c1410; font-weight:600;}
+  .btn.primary:hover{background:#37925b;}
+  .btn:focus-visible, button:focus-visible, input:focus-visible{outline:2px solid var(--gold); outline-offset:2px;}
+
+  .config-bar{
+    padding:14px 28px;
+    border-bottom:1px solid rgba(212,165,44,0.1);
+    background:rgba(212,165,44,0.03);
+    display:flex;
+    gap:10px;
+    align-items:center;
+    flex-wrap:wrap;
+  }
+  .config-bar label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--text-muted);
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+  }
+  .config-bar input[type=text]{
+    flex:1;
+    min-width:220px;
+    background:var(--bg-panel-alt);
+    border:1px solid rgba(255,255,255,0.08);
+    color:var(--text-primary);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    padding:8px 10px;
+    border-radius:3px;
+  }
+  .config-bar .hint{
+    width:100%;
+    font-size:11px;
+    color:var(--text-dim);
+    font-family:'IBM Plex Mono', monospace;
+  }
+  .config-bar .hint a{color:var(--gold-soft);}
+  .config-bar .hint summary{cursor:pointer; color:var(--gold-soft);}
+  .config-bar .hint pre{
+    background:#000; border:1px solid rgba(255,255,255,0.08); border-radius:4px;
+    padding:10px; overflow-x:auto; font-size:10.5px; line-height:1.5; color:#cfd6da;
+    white-space:pre; margin:8px 0 0;
+  }
+  .config-bar .hint ol{margin:8px 0 0; padding-left:18px;}
+  .config-bar .hint li{margin-bottom:4px;}
+
+  .main{
+    max-width:880px;
+    margin:0 auto;
+    padding:28px 20px 70px;
+  }
+  .toolbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:14px;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .toolbar .dirty-count{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:var(--amber);
+  }
+  .toolbar .actions{display:flex; gap:8px;}
+
+  .match{
+    display:grid;
+    grid-template-columns: 32px 1fr 40px 16px 40px 1fr 88px;
+    align-items:center;
+    gap:10px;
+    background:var(--bg-panel);
+    border:1px solid rgba(255,255,255,0.06);
+    border-radius:6px;
+    padding:10px 14px;
+    margin-bottom:8px;
+    transition:border-color 0.2s, background 0.2s;
+  }
+  .match.dirty{border-color:rgba(201,138,44,0.5); background:var(--amber-soft);}
+  .match.saved{border-color:rgba(46,125,79,0.5);}
+  .match.error{border-color:rgba(179,69,58,0.6);}
+  .match .num{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--text-dim);
+    text-align:center;
+  }
+  .match .team{font-size:14px;}
+  .match .team.local{text-align:right;}
+  .match .team.visit{text-align:left;}
+  .match .vs{
+    text-align:center;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--text-dim);
+  }
+  .match input.score{
+    width:40px;
+    text-align:center;
+    background:var(--bg-panel-alt);
+    border:1px solid rgba(255,255,255,0.12);
+    color:var(--text-primary);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:15px;
+    font-weight:600;
+    padding:6px 0;
+    border-radius:4px;
+  }
+  .match input.score:focus{border-color:var(--gold);}
+  .match .row-status{
+    text-align:right;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10px;
+    color:var(--text-dim);
+    white-space:nowrap;
+  }
+  .match.dirty .row-status{color:var(--amber);}
+  .match.saved .row-status{color:var(--green);}
+  .match.error .row-status{color:var(--danger);}
+
+  .empty-msg, .loading-msg{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    color:var(--text-muted);
+    padding:30px 0;
+    text-align:center;
+  }
+
+  .toast{
+    position:fixed;
+    bottom:18px; left:50%;
+    transform:translateX(-50%);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    padding:10px 16px;
+    border-radius:4px;
+    display:none;
+    max-width:90vw;
+  }
+  .toast.show{display:block;}
+  .toast.ok{background:#10241a; border:1px solid rgba(46,125,79,0.5); color:#bfe3cd;}
+  .toast.bad{background:#2a1416; border:1px solid rgba(179,69,58,0.5); color:#e8b6ae;}
+
+  @media (max-width:560px){
+    .match{grid-template-columns: 24px 1fr 36px 12px 36px 1fr; grid-template-areas: none;}
+    .match .row-status{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<header class="page-head">
+  <div class="brand">
+    <span class="eyebrow">FIFA &middot;</span>
+    <h1>Mundial <span>2026</span> — Resultados</h1>
+  </div>
+  <div class="sync-box">
+    <span class="sync-dot" id="syncDot"></span>
+    <span id="syncText">Cargando…</span>
+    <button class="btn" id="refreshBtn" type="button">Actualizar</button>
+  </div>
+</header>
+
+<div class="config-bar">
+  <label for="webAppUrl">URL para guardar:</label>
+  <input type="text" id="webAppUrl" placeholder="Pega aquí la URL de tu Apps Script Web App (termina en /exec)…" autocomplete="off">
+  <button class="btn" id="saveUrlBtn" type="button">Usar</button>
+  <span class="hint">
+    <details>
+      <summary>¿Cómo consigo esa URL? (una sola vez)</summary>
+      <ol>
+        <li>Abre tu hoja → <strong>Extensiones → Apps Script</strong>.</li>
+        <li>Borra el contenido y pega el código del archivo <code>apps-script-guardar-resultados.gs</code> que te entregué junto a esta página.</li>
+        <li><strong>Implementar → Nueva implementación</strong> → tipo <strong>Aplicación web</strong>.</li>
+        <li>"Ejecutar como": <strong>Yo</strong>. "Quién tiene acceso": <strong>Cualquier usuario</strong>.</li>
+        <li>Clic en <strong>Implementar</strong>, autoriza el acceso a tu cuenta, y copia la URL que termina en <code>/exec</code>.</li>
+        <li>Pégala arriba y dale <strong>Usar</strong>.</li>
+      </ol>
+    </details>
+  </span>
+</div>
+
+<div class="main">
+  <div class="toolbar">
+    <span class="dirty-count" id="dirtyCount"></span>
+    <div class="actions">
+      <button class="btn primary" id="saveAllBtn" type="button" disabled>Guardar cambios</button>
+    </div>
+  </div>
+  <div id="matchList"><div class="loading-msg">Cargando partidos…</div></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   CONFIGURACIÓN
+   ============================================================ */
+const CONFIG = {
+  MATCHES_SHEET_ID: "1FNWtVsuh6CnCDMgXiykiX9pj0GzrYJIZ8AhBMAOYSlE",
+  MATCHES_GID: "2145705990",
+  WEBAPP_URL: "https://script.google.com/macros/s/AKfycbybW3lk3Jl5pNCg9yyEajvtxDbjvffozW-nG3TTeaiojvArT5D1cqvjy-hJbFCwG2Zn/exec"   // <- pega aquí la URL de tu Apps Script Web App una vez la tengas, para que cargue sola
+};
+
+let matches = [];      // [{id, local, gl, gv, visitante, origGl, origGv}]
+let saving = false;
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function setSync(state, msg){
+  const dot = document.getElementById("syncDot");
+  const text = document.getElementById("syncText");
+  dot.className = "sync-dot" + (state==="live"?" live":state==="error"?" error":"");
+  text.textContent = msg;
+}
+
+function showToast(msg, ok){
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.className = "toast show " + (ok ? "ok":"bad");
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(()=>t.classList.remove("show"), 5500);
+}
+
+/* ---------- lectura vía JSONP (sin problemas de CORS) ---------- */
+let jsonpCounter = 0;
+function loadViaJSONP(id, gid){
+  return new Promise((resolve, reject) => {
+    const cbName = "__matchCb" + (jsonpCounter++);
+    const timeout = setTimeout(()=>{
+      cleanup();
+      reject(new Error("Tiempo de espera agotado. Verifica que la hoja sea pública (Compartir → Cualquiera con el enlace → Lector)."));
+    }, 9000);
+    function cleanup(){
+      clearTimeout(timeout);
+      delete window[cbName];
+      if(script.parentNode) script.parentNode.removeChild(script);
+    }
+    window[cbName] = (resp) => {
+      cleanup();
+      try{
+        if(resp.status === "error"){
+          const m = (resp.errors && resp.errors[0] && resp.errors[0].detailed_message) || "la hoja no está disponible públicamente";
+          reject(new Error(m));
+          return;
+        }
+        const cols = resp.table.cols.map(c => (c.label || c.id || "").trim().toLowerCase());
+        const rows = resp.table.rows.map(r => r.c.map(cell => cell ? String(cell.f !== undefined && cell.f !== null ? cell.f : (cell.v!==null && cell.v!==undefined ? cell.v : "")) : ""));
+        resolve([cols, ...rows]);
+      }catch(e){ reject(e); }
+    };
+    const script = document.createElement("script");
+    const gidPart = gid ? `&gid=${gid}` : "";
+    script.src = `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:json;responseHandler:${cbName}&headers=1${gidPart}&_=${Date.now()}`;
+    script.onerror = () => { cleanup(); reject(new Error("No se pudo cargar la hoja. Revisa que sea pública.")); };
+    document.body.appendChild(script);
+  });
+}
+
+/* ---------- carga de partidos ---------- */
+async function loadMatches(){
+  setSync("idle","Sincronizando…");
+  try{
+    const rows = await loadViaJSONP(CONFIG.MATCHES_SHEET_ID, CONFIG.MATCHES_GID);
+    const header = rows[0];
+    const find = (...names) => { for(const n of names){ const i = header.indexOf(n); if(i>-1) return i; } return -1; };
+    const idx = { id: find("id"), local: find("local"), gl: find("gl"), gv: find("gv"), visitante: find("visitante") };
+    if(idx.id===-1 || idx.local===-1 || idx.visitante===-1) throw new Error("No se encontraron las columnas ID, LOCAL y VISITANTE en la primera fila.");
+
+    const dataRows = rows.slice(1).filter(r => r.some(c=>String(c).trim()!==""));
+    matches = dataRows.map(r => {
+      const gl = idx.gl>-1 ? (r[idx.gl] ?? "") : "";
+      const gv = idx.gv>-1 ? (r[idx.gv] ?? "") : "";
+      return {
+        id: r[idx.id], local: r[idx.local], visitante: r[idx.visitante],
+        gl: String(gl), gv: String(gv),
+        origGl: String(gl), origGv: String(gv)
+      };
+    });
+    renderMatches();
+    setSync("live", "Sincronizado · " + new Date().toLocaleTimeString());
+  }catch(err){
+    setSync("error", "Error al sincronizar");
+    showToast("No se pudo leer la hoja: " + err.message, false);
+    document.getElementById("matchList").innerHTML = '<div class="empty-msg">No se pudieron cargar los partidos.</div>';
+  }
+}
+
+function isDirty(m){ return m.gl !== m.origGl || m.gv !== m.origGv; }
+
+function renderMatches(){
+  const list = document.getElementById("matchList");
+  if(!matches.length){
+    list.innerHTML = '<div class="empty-msg">No hay partidos en esta hoja.</div>';
+    updateToolbar();
+    return;
+  }
+  list.innerHTML = matches.map((m,i)=>`
+    <div class="match" data-i="${i}">
+      <div class="num">${escapeHtml(m.id)}</div>
+      <div class="team local">${escapeHtml(m.local)}</div>
+      <input class="score gl" type="number" min="0" max="20" inputmode="numeric" value="${escapeHtml(m.gl)}" aria-label="Goles ${escapeHtml(m.local)}">
+      <div class="vs">–</div>
+      <input class="score gv" type="number" min="0" max="20" inputmode="numeric" value="${escapeHtml(m.gv)}" aria-label="Goles ${escapeHtml(m.visitante)}">
+      <div class="team visit">${escapeHtml(m.visitante)}</div>
+      <div class="row-status" data-status></div>
+    </div>
+  `).join("");
+
+  list.querySelectorAll(".match").forEach(el=>{
+    const i = Number(el.dataset.i);
+    el.querySelector(".gl").addEventListener("input", e=>{ matches[i].gl = e.target.value; refreshRow(i); });
+    el.querySelector(".gv").addEventListener("input", e=>{ matches[i].gv = e.target.value; refreshRow(i); });
+  });
+  matches.forEach((m,i)=>refreshRow(i));
+}
+
+function refreshRow(i){
+  const el = document.querySelector(`.match[data-i="${i}"]`);
+  if(!el) return;
+  const m = matches[i];
+  el.classList.remove("dirty","saved","error");
+  const statusEl = el.querySelector("[data-status]");
+  if(isDirty(m)){
+    el.classList.add("dirty");
+    statusEl.textContent = "sin guardar";
+  } else {
+    statusEl.textContent = "";
+  }
+  updateToolbar();
+}
+
+function updateToolbar(){
+  const dirty = matches.filter(isDirty);
+  document.getElementById("dirtyCount").textContent = dirty.length ? `${dirty.length} partido(s) sin guardar` : "";
+  document.getElementById("saveAllBtn").disabled = dirty.length === 0 || saving;
+}
+
+/* ---------- guardado (Apps Script Web App, sin CORS) ---------- */
+function postNoCors(url, payload){
+  return fetch(url, {
+    method: "POST",
+    mode: "no-cors",          // evita el bloqueo CORS; no podremos leer la respuesta
+    body: JSON.stringify(payload)
+  });
+}
+
+async function saveAll(){
+  if(!CONFIG.WEBAPP_URL){
+    showToast("Primero pega la URL de tu Apps Script Web App arriba.", false);
+    return;
+  }
+  const dirty = matches.filter(isDirty);
+  if(!dirty.length) return;
+
+  saving = true;
+  document.getElementById("saveAllBtn").disabled = true;
+  document.getElementById("saveAllBtn").textContent = "Guardando…";
+
+  const payload = { updates: dirty.map(m => ({ id: m.id, gl: m.gl, gv: m.gv })) };
+
+  try{
+    await postNoCors(CONFIG.WEBAPP_URL, payload);
+    // no-cors no permite leer la respuesta: confirmamos releyendo la hoja
+    await new Promise(r=>setTimeout(r, 1500));
+    const before = JSON.stringify(matches.map(m=>({id:m.id,gl:m.gl,gv:m.gv})));
+    await loadMatches();
+    showToast("Cambios enviados y hoja sincronizada.", true);
+  }catch(err){
+    showToast("No se pudo enviar: " + err.message, false);
+  }finally{
+    saving = false;
+    document.getElementById("saveAllBtn").textContent = "Guardar cambios";
+    updateToolbar();
+  }
+}
+
+/* ---------- eventos ---------- */
+document.getElementById("refreshBtn").addEventListener("click", loadMatches);
+document.getElementById("saveAllBtn").addEventListener("click", saveAll);
+document.getElementById("saveUrlBtn").addEventListener("click", ()=>{
+  CONFIG.WEBAPP_URL = document.getElementById("webAppUrl").value.trim();
+  showToast(CONFIG.WEBAPP_URL ? "URL guardada para esta sesión." : "URL borrada.", true);
+});
+
+if(CONFIG.WEBAPP_URL){ document.getElementById("webAppUrl").value = CONFIG.WEBAPP_URL; }
+loadMatches();
+</script>
+</body>
+</html>
