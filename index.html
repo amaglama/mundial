@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mundial 2026 · Cuadro de Eliminación</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-base:#0a0d10;
+    --bg-panel:#141920;
+    --bg-panel-alt:#1b212a;
+    --bg-panel-empty:#11161c;
+    --line-faint:rgba(212,165,44,0.55);
+    --line-faint-dim:rgba(212,165,44,0.18);
+    --gold:#d4a52c;
+    --gold-soft:#a98b3f;
+    --green:#2e7d4f;
+    --green-soft:rgba(46,125,79,0.18);
+    --text-primary:#f1efe9;
+    --text-muted:#7c8389;
+    --text-dim:#4d545a;
+    --danger:#b3453a;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse 1200px 600px at 50% 0%, rgba(212,165,44,0.06), transparent 60%),
+      var(--bg-base);
+    color:var(--text-primary);
+    font-family:'IBM Plex Sans', sans-serif;
+    min-height:100vh;
+  }
+
+  /* ---------- header ---------- */
+  .page-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    padding:22px 28px 18px;
+    border-bottom:1px solid rgba(212,165,44,0.15);
+    flex-wrap:wrap;
+  }
+  .brand{display:flex; align-items:baseline; gap:10px;}
+  .brand .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.18em;
+    color:var(--gold-soft);
+    text-transform:uppercase;
+  }
+  .brand h1{
+    font-family:'Oswald', sans-serif;
+    font-weight:700;
+    font-size:26px;
+    letter-spacing:0.02em;
+    margin:0;
+    text-transform:uppercase;
+  }
+  .brand h1 span{color:var(--gold);}
+
+  .sync-box{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:var(--text-muted);
+  }
+  .sync-dot{
+    width:8px;height:8px;border-radius:50%;
+    background:var(--text-dim);
+    flex-shrink:0;
+  }
+  .sync-dot.live{background:var(--green); box-shadow:0 0 0 0 rgba(46,125,79,0.6); animation:pulse 2s infinite;}
+  .sync-dot.error{background:var(--danger);}
+  @media (prefers-reduced-motion:no-preference){
+    @keyframes pulse{
+      0%{box-shadow:0 0 0 0 rgba(46,125,79,0.55);}
+      70%{box-shadow:0 0 0 7px rgba(46,125,79,0);}
+      100%{box-shadow:0 0 0 0 rgba(46,125,79,0);}
+    }
+  }
+  .btn{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.04em;
+    background:transparent;
+    border:1px solid rgba(212,165,44,0.4);
+    color:var(--gold);
+    padding:7px 12px;
+    border-radius:3px;
+    cursor:pointer;
+    text-transform:uppercase;
+  }
+  .btn:hover{background:rgba(212,165,44,0.1);}
+  .btn:focus-visible, button:focus-visible, input:focus-visible{
+    outline:2px solid var(--gold); outline-offset:2px;
+  }
+
+  /* ---------- config panel ---------- */
+  .config-bar{
+    padding:14px 28px;
+    border-bottom:1px solid rgba(212,165,44,0.1);
+    background:rgba(212,165,44,0.03);
+    display:flex;
+    gap:10px;
+    align-items:center;
+    flex-wrap:wrap;
+  }
+  .config-bar label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--text-muted);
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+  }
+  .config-bar input[type=text]{
+    flex:1;
+    min-width:220px;
+    background:var(--bg-panel-alt);
+    border:1px solid rgba(255,255,255,0.08);
+    color:var(--text-primary);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    padding:8px 10px;
+    border-radius:3px;
+  }
+  .config-bar .hint{
+    width:100%;
+    font-size:11px;
+    color:var(--text-dim);
+    font-family:'IBM Plex Mono', monospace;
+  }
+  .config-bar .hint a{color:var(--gold-soft);}
+
+  /* ---------- bracket layout ---------- */
+  .bracket-scroll{
+    overflow-x:auto;
+    padding:36px 16px 60px;
+  }
+  .bracket{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:0;
+    width:max-content;
+    margin:0 auto;
+    position:relative;
+  }
+  .side{
+    display:flex;
+    position:relative;
+  }
+  .side.right{transform:scaleX(-1);}
+  .round{
+    display:flex;
+    flex-direction:column;
+    justify-content:space-around;
+    width:206px;
+    height:760px;
+    position:relative;
+    padding:0 22px;
+  }
+  .round-label{
+    position:absolute;
+    top:-30px;
+    left:0; right:0;
+    text-align:center;
+    font-family:'Oswald', sans-serif;
+    font-size:13px;
+    letter-spacing:0.12em;
+    color:var(--gold-soft);
+    text-transform:uppercase;
+  }
+  .side.right .round-label{transform:scaleX(-1);}
+
+  .match{
+    background:var(--bg-panel);
+    border:1px solid rgba(255,255,255,0.06);
+    border-radius:4px;
+    overflow:hidden;
+    flex-shrink:0;
+  }
+  .side.right .match{transform:scaleX(-1);}
+  .slot{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:7px 9px;
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:13px;
+    border-bottom:1px solid rgba(255,255,255,0.05);
+    min-height:34px;
+  }
+  .slot:last-child{border-bottom:none;}
+  .slot.empty{color:var(--text-dim); background:var(--bg-panel-empty);}
+  .slot.winner{background:var(--green-soft);}
+  .slot .flag{
+    width:20px; height:14px;
+    object-fit:cover;
+    border-radius:2px;
+    flex-shrink:0;
+    background:#2a2f37;
+  }
+  .slot .ph{
+    width:20px;height:14px;border-radius:2px;
+    background:#2a2f37;
+    flex-shrink:0;
+  }
+  .slot .name{
+    flex:1;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    font-size:12.5px;
+  }
+  .slot.placeholder-code .name{
+    font-family:'IBM Plex Mono', monospace;
+    color:var(--text-muted);
+    font-size:11px;
+  }
+  .slot .score{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    font-weight:600;
+    color:var(--text-muted);
+    width:16px;
+    text-align:right;
+    flex-shrink:0;
+  }
+  .slot.winner .score{color:var(--green);}
+
+  /* round32 8 matches / round16 4 / quarter 2 / semi 1 */
+  .round[data-n="8"] .match{height:62px;}
+  .round[data-n="4"] .match{height:62px;}
+  .round[data-n="2"] .match{height:62px;}
+  .round[data-n="1"] .match{height:62px;}
+
+  .connectors{
+    position:absolute;
+    top:0; left:0;
+    pointer-events:none;
+    overflow:visible;
+  }
+
+  /* ---------- final ---------- */
+  .final-col{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:10px;
+    width:220px;
+    flex-shrink:0;
+    position:relative;
+    z-index:2;
+  }
+  .final-col .round-label{position:static; margin-bottom:4px;}
+  .final-trophy{
+    width:166px;
+    border:1px solid rgba(212,165,44,0.5);
+    border-radius:8px;
+    background:
+      radial-gradient(circle at 50% 0%, rgba(212,165,44,0.14), transparent 70%),
+      var(--bg-panel);
+    box-shadow:0 0 0 1px rgba(212,165,44,0.08), 0 10px 30px -10px rgba(212,165,44,0.25);
+    padding:10px 0 12px;
+    text-align:center;
+  }
+  .final-trophy .ft-label{
+    font-family:'Oswald', sans-serif;
+    font-weight:700;
+    font-size:18px;
+    letter-spacing:0.04em;
+    color:var(--gold);
+    line-height:1.1;
+  }
+  .final-trophy .ft-year{font-size:13px; color:var(--text-muted); font-family:'IBM Plex Mono',monospace;}
+  .net-bg{
+    position:absolute;
+    inset:-40px -60px;
+    background-image:
+      repeating-linear-gradient(45deg, rgba(212,165,44,0.035) 0 1px, transparent 1px 14px),
+      repeating-linear-gradient(-45deg, rgba(212,165,44,0.035) 0 1px, transparent 1px 14px);
+    z-index:-1;
+    pointer-events:none;
+  }
+  .final-match{width:100%;}
+
+  /* ---------- footer / legend ---------- */
+  .legend{
+    display:flex;
+    gap:20px;
+    justify-content:center;
+    padding:0 16px 30px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--text-dim);
+    flex-wrap:wrap;
+  }
+  .legend span{display:flex; align-items:center; gap:6px;}
+  .legend .dot{width:9px;height:9px;border-radius:2px;}
+
+  /* ---------- error toast ---------- */
+  .toast{
+    position:fixed;
+    bottom:18px; left:50%;
+    transform:translateX(-50%);
+    background:#2a1416;
+    border:1px solid rgba(179,69,58,0.5);
+    color:#e8b6ae;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    padding:10px 16px;
+    border-radius:4px;
+    display:none;
+    max-width:90vw;
+  }
+  .toast.show{display:block;}
+
+  @media (max-width:720px){
+    .page-head{padding:16px;}
+    .brand h1{font-size:19px;}
+  }
+</style>
+</head>
+<body>
+
+<header class="page-head">
+  <div class="brand">
+    <span class="eyebrow">FIFA &middot;</span>
+    <h1>Mundial <span>2026</span> — Cuadro</h1>
+  </div>
+  <div class="sync-box">
+    <span class="sync-dot" id="syncDot"></span>
+    <span id="syncText">Mostrando datos de ejemplo</span>
+    <button class="btn" id="refreshBtn" type="button">Actualizar</button>
+  </div>
+</header>
+
+<div class="config-bar">
+  <label for="sheetUrl">Hoja de Google:</label>
+  <input type="text" id="sheetUrl" placeholder="Pega aquí el enlace para compartir tu Google Sheet…" autocomplete="off">
+  <button class="btn" id="connectBtn" type="button">Conectar</button>
+  <span class="hint">Recomendado: en tu hoja, click en <strong>Compartir</strong> → "Cualquiera con el enlace" → Lector, y pega aquí ese enlace (el normal, con <code>/edit</code>) — funciona sin pasos extra de publicación. Columnas requeridas en la primera fila: <code>id, equipo1, codigo1, goles1, equipo2, codigo2, goles2</code> (la columna <code>ronda</code> es opcional, solo para que tú identifiques cada fila).</span>
+</div>
+
+<div class="bracket-scroll">
+  <div class="bracket" id="bracket"></div>
+</div>
+
+<div class="legend">
+  <span><span class="dot" style="background:var(--bg-panel-empty);border:1px solid #2a2f37;"></span> Por definir</span>
+  <span><span class="dot" style="background:var(--green-soft);border:1px solid var(--green);"></span> Avanza</span>
+  <span><span class="dot" style="background:var(--bg-panel);border:1px solid rgba(255,255,255,0.1);"></span> Definido, sin jugar</span>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   CONFIGURACIÓN
+   Pega aquí el enlace de tu Google Sheet para que cargue
+   automáticamente al abrir la página (en vez de tener que
+   pegarlo cada vez en el recuadro de arriba).
+   Acepta dos formatos:
+   - Enlace normal para compartir (recomendado, sin CORS):
+     https://docs.google.com/spreadsheets/d/TU_ID/edit#gid=0
+   - Enlace "Publicar en la web" en formato CSV:
+     https://docs.google.com/spreadsheets/d/e/XXXXXXX/pub?output=csv
+   ============================================================ */
+const CONFIG = {
+  SHEET_CSV_URL: "https://docs.google.com/spreadsheets/d/1wfs1aDJSIO3jvpusA6n6kQMhBSgqJsxXlouezpvznkE/edit?usp=sharing",
+  AUTO_REFRESH_MS: 30000          // refresca solo cada 30 segundos. Pon 0 para desactivar.
+};
+
+/* ---------- estructura fija del cuadro (coincide con la imagen) ---------- */
+// lado izquierdo, 16avos (de arriba hacia abajo)
+const L32 = [
+  ["L32-1","Alemania","de","Paraguay","py"],
+  ["L32-2","Francia","fr","Suecia","se"],
+  ["L32-3","Sudáfrica","za","Canadá","ca"],
+  ["L32-4","Países Bajos","nl","Marruecos","ma"],
+  ["L32-5","2K","","2L",""],
+  ["L32-6","España","es","2J",""],
+  ["L32-7","Estados Unidos","us","Bosnia y Herzegovina","ba"],
+  ["L32-8","Bélgica","be","3AEIHJ",""]
+];
+// lado derecho, 16avos (de arriba hacia abajo)
+const R32 = [
+  ["R32-1","Brasil","br","Japón","jp"],
+  ["R32-2","Costa de Marfil","ci","Noruega","no"],
+  ["R32-3","México","mx","3CEFHI",""],
+  ["R32-4","1L","","3EIHJK",""],
+  ["R32-5","Argentina","ar","Cabo Verde","cv"],
+  ["R32-6","Australia","au","Egipto","eg"],
+  ["R32-7","Suiza","ch","3EFGIJ",""],
+  ["R32-8","1K","","3DEIJL",""]
+];
+
+function emptyRows(prefix, n){
+  const r=[];
+  for(let i=1;i<=n;i++) r.push([prefix+"-"+i, "", "", "", ""]);
+  return r;
+}
+
+const L16 = emptyRows("L16",4);
+const R16 = emptyRows("R16",4);
+const L8  = emptyRows("L8",2);
+const R8  = emptyRows("R8",2);
+const SFL = [["SF-L","","","",""]];
+const SFR = [["SF-R","","","",""]];
+const FIN = [["F-1","","","",""]];
+
+const ALL_DEFAULT_ROWS = [...L32,...R32,...L16,...R16,...L8,...R8,...SFL,...SFR,...FIN];
+
+// id -> {equipo1,codigo1,goles1,equipo2,codigo2,goles2}
+function rowsToMap(rows){
+  const m = {};
+  rows.forEach(([id,e1,c1,e2,c2,g1,g2])=>{
+    m[id] = {equipo1:e1||"", codigo1:c1||"", goles1: g1!==undefined?g1:"", equipo2:e2||"", codigo2:c2||"", goles2: g2!==undefined?g2:""};
+  });
+  return m;
+}
+// nota: las filas arriba tienen 5 campos (sin goles); normalizamos:
+function normalizeDefault(rows){
+  return rows.map(r=>{
+    const [id,e1,c1,e2,c2] = r;
+    return [id,e1,c1,e2,c2,"",""];
+  });
+}
+let dataMap = rowsToMap(normalizeDefault(ALL_DEFAULT_ROWS));
+
+/* pares que alimentan a la siguiente ronda, para dibujar conectores */
+const LINKS = [
+  ["L32-1","L32-2","L16-1"], ["L32-3","L32-4","L16-2"], ["L32-5","L32-6","L16-3"], ["L32-7","L32-8","L16-4"],
+  ["R32-1","R32-2","R16-1"], ["R32-3","R32-4","R16-2"], ["R32-5","R32-6","R16-3"], ["R32-7","R32-8","R16-4"],
+  ["L16-1","L16-2","L8-1"], ["L16-3","L16-4","L8-2"],
+  ["R16-1","R16-2","R8-1"], ["R16-3","R16-4","R8-2"],
+  ["L8-1","L8-2","SF-L"],
+  ["R8-1","R8-2","SF-R"]
+];
+const FINAL_LINKS = [["SF-L","F-1"], ["SF-R","F-1"]];
+
+const ROUNDS_LEFT  = [{key:"L32",n:8,label:"16avos"},{key:"L16",n:4,label:"Octavos"},{key:"L8",n:2,label:"Cuartos"},{key:"SF-L",n:1,label:"Semifinal"}];
+const ROUNDS_RIGHT = [{key:"R32",n:8,label:"16avos"},{key:"R16",n:4,label:"Octavos"},{key:"R8",n:2,label:"Cuartos"},{key:"SF-R",n:1,label:"Semifinal"}];
+
+function idsFor(roundDef){
+  if(roundDef.n===1) return [roundDef.key];
+  const ids=[];
+  for(let i=1;i<=roundDef.n;i++) ids.push(roundDef.key+"-"+i);
+  return ids;
+}
+
+function flagOrPlaceholder(name, code){
+  if(!name) return '<span class="ph"></span>';
+  if(code) return `<img class="flag" src="https://flagcdn.com/h40/${code}.png" alt="" loading="lazy" onerror="this.style.visibility='hidden'">`;
+  return '<span class="ph"></span>';
+}
+
+function isPlaceholderCode(name){
+  // códigos de cruces todavía no definidos, ej "2K", "3AEIHJ", "1L"
+  return /^[0-9][A-Z]+$/.test(name||"");
+}
+
+function slotHTML(name, code, goles, otherGoles){
+  const hasName = !!name;
+  const isWinner = hasName && goles!=="" && otherGoles!=="" && Number(goles) > Number(otherGoles);
+  const cls = ["slot"];
+  if(!hasName) cls.push("empty");
+  if(isPlaceholderCode(name)) cls.push("placeholder-code");
+  if(isWinner) cls.push("winner");
+  const flag = flagOrPlaceholder(name, code);
+  const label = hasName ? name : "Por definir";
+  const score = goles!=="" && goles!==undefined ? goles : "-";
+  return `<div class="${cls.join(' ')}" title="${escapeHtml(label)}">${flag}<span class="name">${escapeHtml(label)}</span><span class="score">${escapeHtml(String(score))}</span></div>`;
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function matchHTML(id){
+  const d = dataMap[id] || {};
+  return `<div class="match" data-id="${id}">
+    ${slotHTML(d.equipo1, d.codigo1, d.goles1, d.goles2)}
+    ${slotHTML(d.equipo2, d.codigo2, d.goles2, d.goles1)}
+  </div>`;
+}
+
+function roundHTML(roundDef){
+  const ids = idsFor(roundDef);
+  const matches = ids.map(matchHTML).join("");
+  return `<div class="round" data-n="${roundDef.n}" data-key="${roundDef.key}">
+    <div class="round-label">${roundDef.label}</div>
+    ${matches}
+  </div>`;
+}
+
+function renderBracket(){
+  const left = ROUNDS_LEFT.map(roundHTML).join("");
+  const right = ROUNDS_RIGHT.map(roundHTML).join("");
+
+  const final = dataMap["F-1"] || {};
+  const finalHTML = `
+    <div class="final-col">
+      <div class="round-label">Final</div>
+      <div class="final-trophy">
+        <div class="net-bg"></div>
+        <div class="ft-label">FINAL</div>
+        <div class="ft-year">2026</div>
+      </div>
+      <div class="match final-match" data-id="F-1">
+        ${slotHTML(final.equipo1, final.codigo1, final.goles1, final.goles2)}
+        ${slotHTML(final.equipo2, final.codigo2, final.goles2, final.goles1)}
+      </div>
+    </div>`;
+
+  document.getElementById("bracket").innerHTML = `
+    <div class="side left">${left}</div>
+    ${finalHTML}
+    <div class="side right">${right}</div>
+    <svg class="connectors" id="connSvg"></svg>
+  `;
+
+  // dibujar conectores después de que el layout exista en el DOM
+  requestAnimationFrame(drawConnectors);
+}
+
+function centerOf(el, bracketRect){
+  const r = el.getBoundingClientRect();
+  return {
+    left: r.left - bracketRect.left,
+    right: r.right - bracketRect.left,
+    top: r.top - bracketRect.top,
+    bottom: r.bottom - bracketRect.top,
+    cy: (r.top + r.bottom)/2 - bracketRect.top
+  };
+}
+
+function drawConnectors(){
+  const bracketEl = document.getElementById("bracket");
+  const svg = document.getElementById("connSvg");
+  const bracketRect = bracketEl.getBoundingClientRect();
+  svg.setAttribute("width", bracketRect.width);
+  svg.setAttribute("height", bracketRect.height);
+  svg.setAttribute("viewBox", `0 0 ${bracketRect.width} ${bracketRect.height}`);
+
+  let paths = "";
+
+  function elFor(id){ return bracketEl.querySelector(`.match[data-id="${id}"]`); }
+
+  LINKS.concat(FINAL_LINKS.length?[]:[]).forEach(()=>{}); // no-op, keep structure simple
+
+  LINKS.forEach(([aId,bId,pId])=>{
+    const a = elFor(aId), b = elFor(bId), p = elFor(pId);
+    if(!a||!b||!p) return;
+    const side = aId.startsWith("R") ? "right" : "left";
+    const ca = centerOf(a, bracketRect);
+    const cb = centerOf(b, bracketRect);
+    const cp = centerOf(p, bracketRect);
+    const xChild = side==="left" ? ca.right : ca.left;
+    const xParent = side==="left" ? cp.left : cp.right;
+    const xMid = (xChild + xParent)/2;
+    paths += `<path d="M ${xChild} ${ca.cy} H ${xMid} M ${(side==='left'?cb.right:cb.left)} ${cb.cy} H ${xMid} M ${xMid} ${ca.cy} V ${cb.cy} M ${xMid} ${(ca.cy+cb.cy)/2} H ${xParent}" />`;
+  });
+
+  FINAL_LINKS.forEach(([aId,pId])=>{
+    const a = elFor(aId), p = elFor(pId);
+    if(!a||!p) return;
+    const side = aId.endsWith("L") ? "left" : "right";
+    const ca = centerOf(a, bracketRect);
+    const cp = centerOf(p, bracketRect);
+    const xChild = side==="left" ? ca.right : ca.left;
+    const xParent = side==="left" ? cp.left : cp.right;
+    const xMid = (xChild + xParent)/2;
+    paths += `<path d="M ${xChild} ${ca.cy} H ${xMid} V ${cp.cy} H ${xParent}" />`;
+  });
+
+  svg.innerHTML = `<g fill="none" stroke="${getComputedStyle(document.documentElement).getPropertyValue('--line-faint')}" stroke-width="1.5">${paths}</g>`;
+}
+
+/* ---------- carga desde Google Sheets ---------- */
+
+function parseCSV(text){
+  // parser simple que respeta comillas (Google Sheets exporta con comillas si hay comas)
+  const rows = [];
+  let row = [], field = "", inQuotes = false;
+  for(let i=0;i<text.length;i++){
+    const c = text[i];
+    if(inQuotes){
+      if(c === '"'){
+        if(text[i+1] === '"'){ field += '"'; i++; }
+        else inQuotes = false;
+      } else field += c;
+    } else {
+      if(c === '"') inQuotes = true;
+      else if(c === ','){ row.push(field); field=""; }
+      else if(c === '\n' || c === '\r'){
+        if(c === '\r' && text[i+1] === '\n') i++;
+        row.push(field); field="";
+        if(row.length>1 || row[0]!=="") rows.push(row);
+        row = [];
+      } else field += c;
+    }
+  }
+  if(field.length || row.length){ row.push(field); rows.push(row); }
+  return rows;
+}
+
+function applySheetRows(rows){
+  if(!rows.length) return false;
+  const header = rows[0].map(h=>h.trim().toLowerCase());
+  const idx = {
+    id: header.indexOf("id"),
+    equipo1: header.indexOf("equipo1"),
+    codigo1: header.indexOf("codigo1"),
+    goles1: header.indexOf("goles1"),
+    equipo2: header.indexOf("equipo2"),
+    codigo2: header.indexOf("codigo2"),
+    goles2: header.indexOf("goles2"),
+  };
+  if(idx.id === -1) return false;
+
+  const newMap = rowsToMap(normalizeDefault(ALL_DEFAULT_ROWS)); // base, por si la hoja viene incompleta
+  for(let i=1;i<rows.length;i++){
+    const r = rows[i];
+    const id = (r[idx.id]||"").trim();
+    if(!id) continue;
+    newMap[id] = {
+      equipo1: (idx.equipo1>-1 ? r[idx.equipo1] : "")||"",
+      codigo1: (idx.codigo1>-1 ? r[idx.codigo1] : "")||"",
+      goles1: (idx.goles1>-1 ? r[idx.goles1] : "")||"",
+      equipo2: (idx.equipo2>-1 ? r[idx.equipo2] : "")||"",
+      codigo2: (idx.codigo2>-1 ? r[idx.codigo2] : "")||"",
+      goles2: (idx.goles2>-1 ? r[idx.goles2] : "")||"",
+    };
+  }
+  dataMap = newMap;
+  return true;
+}
+
+function setSync(state, msg){
+  const dot = document.getElementById("syncDot");
+  const text = document.getElementById("syncText");
+  dot.className = "sync-dot" + (state==="live"?" live":state==="error"?" error":"");
+  text.textContent = msg;
+}
+
+function showToast(msg){
+  const t = document.getElementById("toast");
+  t.innerHTML = msg;
+  t.classList.add("show");
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(()=>t.classList.remove("show"), 9000);
+}
+
+/* ---------- detectar tipo de enlace pegado ---------- */
+function parseSheetInput(input){
+  input = input.trim();
+  if(!input) return null;
+
+  // enlace "Publicar en la web" (.../d/e/2PACX-.../pub?...output=csv...)
+  if(/\/d\/e\/2PACX/.test(input)){
+    return { mode:"pub", csvUrl: input };
+  }
+  // enlace normal de la hoja: .../spreadsheets/d/{ID}/edit#gid={GID}  (o solo el ID pegado)
+  let id = null, gid = null;
+  const idMatch = input.match(/\/d\/([a-zA-Z0-9-_]+)/);
+  if(idMatch) id = idMatch[1];
+  else if(/^[a-zA-Z0-9-_]{20,}$/.test(input)) id = input; // pegaron solo el ID
+
+  const gidMatch = input.match(/gid=([0-9]+)/);
+  if(gidMatch) gid = gidMatch[1];
+
+  if(id) return { mode:"sheet", id, gid };
+  return { mode:"pub", csvUrl: input }; // como último recurso, tratar de descargarlo tal cual
+}
+
+/* ---------- método robusto: JSONP contra la API de Visualización (sin problemas de CORS) ---------- */
+let jsonpCounter = 0;
+function loadViaJSONP(id, gid){
+  return new Promise((resolve, reject) => {
+    const cbName = "__sheetCb" + (jsonpCounter++);
+    const timeout = setTimeout(()=>{
+      cleanup();
+      reject(new Error("Tiempo de espera agotado. Verifica que la hoja sea pública (Compartir → Cualquiera con el enlace → Lector)."));
+    }, 9000);
+
+    function cleanup(){
+      clearTimeout(timeout);
+      delete window[cbName];
+      if(script.parentNode) script.parentNode.removeChild(script);
+    }
+
+    window[cbName] = (resp) => {
+      cleanup();
+      try{
+        if(resp.status === "error"){
+          const msg = (resp.errors && resp.errors[0] && resp.errors[0].detailed_message) || "la hoja no está disponible públicamente";
+          reject(new Error(msg));
+          return;
+        }
+        const cols = resp.table.cols.map(c => (c.label || c.id || "").trim().toLowerCase());
+        const rows = resp.table.rows.map(r => r.c.map(cell => cell ? String(cell.f !== undefined && cell.f !== null ? cell.f : (cell.v!==null && cell.v!==undefined ? cell.v : "")) : ""));
+        resolve([cols, ...rows]);
+      }catch(e){ reject(e); }
+    };
+
+    const script = document.createElement("script");
+    const gidPart = gid ? `&gid=${gid}` : "";
+    script.src = `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:json;responseHandler:${cbName}&headers=1${gidPart}&_=${Date.now()}`;
+    script.onerror = () => { cleanup(); reject(new Error("No se pudo cargar la hoja. Revisa el enlace y que sea pública.")); };
+    document.body.appendChild(script);
+  });
+}
+
+async function loadFromSheet(rawInput){
+  if(!rawInput){
+    setSync("idle","Mostrando datos de ejemplo");
+    renderBracket();
+    return;
+  }
+  const parsed = parseSheetInput(rawInput);
+  setSync("idle","Sincronizando…");
+  try{
+    let rows;
+    if(parsed.mode === "sheet"){
+      rows = await loadViaJSONP(parsed.id, parsed.gid);
+    } else {
+      let res;
+      try{
+        res = await fetch(parsed.csvUrl, {cache:"no-store"});
+      }catch(networkErr){
+        throw new Error("Bloqueo de red/CORS al pedir el CSV directamente. Pega mejor el enlace normal para compartir la hoja (Compartir → Cualquiera con el enlace) en vez del enlace de 'Publicar en la web'.");
+      }
+      if(!res.ok) throw new Error("HTTP " + res.status + " — revisa que el enlace sea correcto y la hoja esté publicada.");
+      const text = await res.text();
+      rows = parseCSV(text).filter(r=>r.some(c=>c.trim()!==""));
+    }
+    const ok = applySheetRows(rows);
+    if(!ok) throw new Error("No se encontró la columna 'id' en la primera fila de la hoja.");
+    renderBracket();
+    const now = new Date();
+    setSync("live", "Sincronizado · " + now.toLocaleTimeString());
+  }catch(err){
+    setSync("error", "Error al sincronizar");
+    showToast("No se pudo leer la hoja: " + err.message);
+    renderBracket();
+  }
+}
+
+/* ---------- eventos ---------- */
+document.getElementById("connectBtn").addEventListener("click", ()=>{
+  const url = document.getElementById("sheetUrl").value.trim();
+  CONFIG.SHEET_CSV_URL = url;
+  loadFromSheet(url);
+});
+document.getElementById("refreshBtn").addEventListener("click", ()=>{
+  loadFromSheet(CONFIG.SHEET_CSV_URL || document.getElementById("sheetUrl").value.trim());
+});
+window.addEventListener("resize", ()=>{ requestAnimationFrame(drawConnectors); });
+
+/* ---------- inicio ---------- */
+if(CONFIG.SHEET_CSV_URL){
+  document.getElementById("sheetUrl").value = CONFIG.SHEET_CSV_URL;
+}
+loadFromSheet(CONFIG.SHEET_CSV_URL);
+
+if(CONFIG.AUTO_REFRESH_MS > 0){
+  setInterval(()=>loadFromSheet(CONFIG.SHEET_CSV_URL), CONFIG.AUTO_REFRESH_MS);
+}
+</script>
+</body>
+</html>
