@@ -1,4 +1,4 @@
-{
+const tablaGrupos ={
   "torneo": "Copa Mundial de la FIFA 2026",
   "fase": "Fase de Grupos",
   "criterio_orden": ["Puntos", "Diferencia de Goles", "Goles a Favor"],

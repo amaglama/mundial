@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Cargar JSON externo</title>
+</head>
+<body>
+    <h1>Lista de productos</h1>
+    <ul id="lista-productos"></ul>
+
+    <script>
+        // Función asíncrona para cargar el JSON
+        async function cargarJSON() {
+            try {
+                // Se realiza la petición al archivo
+                const respuesta = await fetch('./json/tablaGrupos.json');
+                
+                // Se convierte a objeto JavaScript
+                const datos = await respuesta.json();
+
+                // Se manipula el DOM para mostrar los datos
+                let html = '';
+                datos.productos.forEach(item => {
+                    html += `<li>${item.nombre} - $${item.precio}</li>`;
+                });
+                document.getElementById('lista-productos').innerHTML = html;
+
+            } catch (error) {
+                console.error('Error al cargar el JSON:', error);
+            }
+        }
+
+        cargarJSON();
+    </script>
+</body>
+</html>

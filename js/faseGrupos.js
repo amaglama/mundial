@@ -254,4 +254,31 @@ const DEFAULT_JSON = {
   }
 };
 
-loadJSON(DEFAULT_JSON);
+function todosTerceros(grupos){
+    return Object.entries(grupos).map(([grupo, equipos]) =>({ 
+      grupo : grupo? grupo:"",
+      equipo: equipos[2]?.equipo?? "",
+      pts   : equipos[2]?.pts?? "",
+      dg    : equipos[2]?.dg?? "",
+      gf    : equipos[2]?.gf?? "",
+    })
+  ).sort((a, b) => {
+    return (b.pts - a.pts) || (b.dg - a.dg) || (b.gf - a.gf);
+  });
+
+}
+const datos = tablaGrupos?? DEFAULT_JSON;
+loadJSON(datos);
+// modificacion de los estilos de los terceros peores para que no aparezcan que estan clasificados
+const cantPeores = 12-8;
+if(datos.tablas){
+  const tercerosPeores = todosTerceros(datos.tablas).slice(-4);
+  tercerosPeores.forEach((equipo) => {
+    let name = equipo.grupo;
+    let element = document.querySelector(`.group-table[aria-label="${name}"] tbody tr:nth-child(3)`);
+    if(element){
+      element.style.background = "none";
+      element.querySelector("td:nth-child(1)").style.borderLeft = "0";
+    }
+  })  
+}
