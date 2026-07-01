@@ -97,7 +97,7 @@ async function loadMatches(){
   }
 }
 
-function isDirty(m){ return m.gl !== m.origGl || m.gv !== m.origGv || m.pl !== m.origPl || m.pv !== m.origPv; }
+function isDirty(m){ return m.gl !== m.origGl || m.gv !== m.origGv || m.pl != m.origPl || m.pv != m.origPv; }
 
 function hayPenales(m){ return m.gl == m.gv; }
 
@@ -148,8 +148,9 @@ function defPenales(i, partido){
     else{
       penales.querySelectorAll("input").forEach(input => {
         input.value = "";
-        input.setAttribute("arial-label", "");
       });
+      matches[i].pl = matches[i].origPl;
+      matches[i].pv = matches[i].origPv;
       penales.classList.add("nones");
     }    
 }
