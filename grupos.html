@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mundial 2026 · Tabla de Grupos</title>
+<link rel="icon" type="image/svg+xml" href="./images/copa.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./css/faseGrupos.css">
+</head>
+<body>
+
+<header class="page-head">
+  <div class="brand">
+    <span class="eyebrow">FIFA &middot;</span>
+    <h1>Mundial <span>2026</span></h1>
+  </div>
+  <div class="head-meta">
+    <span class="phase" id="phaseLabel">Fase de Grupos</span>
+    <span class="badge" id="torneoLabel">Copa Mundial 2026</span>
+  </div>
+</header>
+
+<div class="file-bar">
+  <label for="jsonFile">Cargar JSON:</label>
+  <input type="file" id="jsonFile" accept=".json" aria-label="Selecciona tu archivo grupos.json">
+  <span class="hint">Carga tu propio archivo .json para actualizar las tablas.</span>
+</div>
+
+<div class="filter-bar" id="filterBar" role="navigation" aria-label="Filtrar grupos">
+  <span class="label">Grupo:</span>
+  <button class="gbtn active" data-group="all">Todos</button>
+</div>
+
+<div class="legend-bar">
+  <span class="crit">Criterio: Puntos</span>
+  <span class="crit">Diferencia de goles</span>
+  <span class="crit">Goles a favor</span>
+  <div class="adv">
+    <span class="dot-g"></span><span class="adv-text">Clasifica a 16avos</span>
+    <span class="dot-a" style="margin-left:10px;"></span><span class="adv-text">Posible 3ro mejor</span>
+  </div>
+</div>
+
+<main class="main">
+  <div class="groups-grid" id="groupsGrid">
+    <div class="state-msg">Cargando…</div>
+  </div>
+</main>
+
+<script src="./js/faseGrupos.js"></script>
+</body>
+</html>
