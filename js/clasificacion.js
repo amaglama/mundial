@@ -119,7 +119,6 @@ function slotHTML(name, code, goles, otherGoles, penales, otrosPenales){
   const flag = flagOrPlaceholder(name, code);
   const label = hasName ? name : "Por definir";
   const score = (goles!=="" && goles!==undefined ? goles : "-") + (penales!=="" && penales!==undefined && Number(penales)>0? `(${penales})` : "");
-  console.log(name, score);
   
   return `<div class="${cls.join(' ')}" title="${escapeHtml(label)}">${flag}<span class="name">${escapeHtml(label)}</span><span class="score">${escapeHtml(String(score))}</span></div>`;
 }
@@ -138,7 +137,7 @@ function matchHTML(id){
 
 function roundHTML(roundDef){
 
-  const ids = idsFor(roundDef);console.log(ids);
+  const ids = idsFor(roundDef);
   
   const matches = ids.map(matchHTML).join("");
   return `<div class="round" data-n="${roundDef.n}" data-key="${roundDef.key}">
@@ -260,7 +259,6 @@ function parseCSV(text){
 
 function applySheetRows(rows){
   if(!rows.length) return false;
-  console.log(rows);
   
   const header = rows[0].map(h=>h.trim().toLowerCase());
   const idx = {
