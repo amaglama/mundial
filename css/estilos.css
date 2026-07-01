@@ -304,17 +304,17 @@
     font-size:12px;
     font-weight:600;
     color:var(--text-muted);
-    width:16px;
+    width:24px;
     text-align:right;
     flex-shrink:0;
   }
   .slot.winner .score{color:var(--green);}
 
   /* round32 8 matches / round16 4 / quarter 2 / semi 1 */
-  .round[data-n="8"] .match{height:62px;}
-  .round[data-n="4"] .match{height:62px;}
-  .round[data-n="2"] .match{height:62px;}
-  .round[data-n="1"] .match{height:62px;}
+  .round[data-n="8"] .match{height:68px;}
+  .round[data-n="4"] .match{height:68px;}
+  .round[data-n="2"] .match{height:68px;}
+  .round[data-n="1"] .match{height:68px;}
 
   .connectors{
     position:absolute;

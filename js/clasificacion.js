@@ -105,16 +105,22 @@ function isPlaceholderCode(name){
   return /^[0-9][A-Z]+$/.test(name||"");
 }
 
-function slotHTML(name, code, goles, otherGoles){
+function isWinner(name, golesF, golesC, penalesF, penalesC){
   const hasName = !!name;
-  const isWinner = hasName && goles!=="" && otherGoles!=="" && Number(goles) > Number(otherGoles);
+  if(hasName && penalesF!=="" && penalesC!=="" && Number(penalesF) > Number(penalesC)) return true;
+  return hasName && golesF!=="" && golesC!=="" && Number(golesF) > Number(golesC);
+}
+function slotHTML(name, code, goles, otherGoles, penales, otrosPenales){
+  const hasName = !!name;
   const cls = ["slot"];
   if(!hasName) cls.push("empty");
   if(isPlaceholderCode(name)) cls.push("placeholder-code");
-  if(isWinner) cls.push("winner");
+  if( isWinner(name, goles, otherGoles, penales, otrosPenales) ) cls.push("winner");
   const flag = flagOrPlaceholder(name, code);
   const label = hasName ? name : "Por definir";
-  const score = goles!=="" && goles!==undefined ? goles : "-";
+  const score = (goles!=="" && goles!==undefined ? goles : "-") + (penales!=="" && penales!==undefined && Number(penales)>0? `(${penales})` : "");
+  console.log(name, score);
+  
   return `<div class="${cls.join(' ')}" title="${escapeHtml(label)}">${flag}<span class="name">${escapeHtml(label)}</span><span class="score">${escapeHtml(String(score))}</span></div>`;
 }
 
@@ -123,10 +129,10 @@ function escapeHtml(s){
 }
 
 function matchHTML(id){
-  const d = dataMap[id] || {};console.log("matchHTML",id,d);
+  const d = dataMap[id] || {};
   return `<div class="match" data-id="${id}">
-    ${slotHTML(d.equipo1, d.codigo1, d.goles1, d.goles2)}
-    ${slotHTML(d.equipo2, d.codigo2, d.goles2, d.goles1)}
+    ${slotHTML(d.equipo1, d.codigo1, d.goles1, d.goles2, d.penales1, d.penales2)}
+    ${slotHTML(d.equipo2, d.codigo2, d.goles2, d.goles1, d.penales2, d.penales1)}
   </div>`;
 }
 
@@ -155,8 +161,8 @@ function renderBracket(){
         <div class="ft-year">2026</div>
       </div>
       <div class="match final-match" data-id="F-1">
-        ${slotHTML(final.equipo1, final.codigo1, final.goles1, final.goles2)}
-        ${slotHTML(final.equipo2, final.codigo2, final.goles2, final.goles1)}
+        ${slotHTML(final.equipo1, final.codigo1, final.goles1, final.goles2, final.penales1, final.penales2)}
+        ${slotHTML(final.equipo2, final.codigo2, final.goles2, final.goles1, final.penales2, final.penales1)}
       </div>
     </div>`;
 
