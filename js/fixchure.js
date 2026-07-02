@@ -112,11 +112,11 @@ function renderMatches(){
     <div class="match" data-i="${i}">
         <div class="reglamentario">
             <div class="num">${escapeHtml(m.id)}</div>
-            <div class="team local">${escapeHtml(m.local)}</div>
+            <div class="team local">${escapeHtml(m.local)} ${paises[m.local] ? `<img class="flag" src="https://flagcdn.com/h40/${escapeHtml(paises[m.local])}.png" alt="" loading="lazy" onerror="this.style.visibility='hidden'">` : "<div class='ph right'></div>"}</div>
             <input class="score gl" type="number" min="0" max="20" inputmode="numeric" value="${escapeHtml(m.gl)}" aria-label="Goles ${escapeHtml(m.local)}">
             <div class="vs">–</div>
             <input class="score gv" type="number" min="0" max="20" inputmode="numeric" value="${escapeHtml(m.gv)}" aria-label="Goles ${escapeHtml(m.visitante)}">
-            <div class="team visit">${escapeHtml(m.visitante)}</div>
+            <div class="team visit">${paises[m.visitante] ? `<img class="flag" src="https://flagcdn.com/h40/${escapeHtml(paises[m.visitante])}.png" alt="" loading="lazy" onerror="this.style.visibility='hidden'">`:"<div class='ph left'></div>"} ${escapeHtml(m.visitante)}</div>
             <div class="row-status" data-status></div>
         </div>
         <div class="penales nones">

@@ -193,6 +193,24 @@
     font-size:11px;
     color:var(--text-dim);
   }
+
+  .flag{
+    width:20px; height:14px;
+    object-fit:cover;
+    border-radius:2px;
+    flex-shrink:0;
+    background:#2a2f37;
+    margin: 0 10px;
+  }
+  .ph{
+    width:20px;height:14px;border-radius:2px;
+    background:#2a2f37;
+    flex-shrink:0;
+    margin: 0 10px;
+  }
+  .ph.left{float:left;}
+  .ph.right{float:right;}
+
   .match input.score{
     width:40px;
     text-align:center;
@@ -241,6 +259,8 @@
   .toast.bad{background:#2a1416; border:1px solid rgba(179,69,58,0.5); color:#e8b6ae;}
 
   @media (max-width:560px){
-    .reglamentario{grid-template-columns: 24px 1fr 36px 12px 36px 1fr; grid-template-areas: none;}
+    .reglamentario, .penales{grid-template-columns: 24px 1fr 36px 12px 36px 1fr; grid-template-areas: none;}
     .match .row-status{display:none;}
+    .flag{ display:none; height:0; width:0; margin:0; }
+    .ph{ display:none; height:0; width:0; margin:0; }
   }

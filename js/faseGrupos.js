@@ -1,7 +1,7 @@
 /* ============================================================
    FLAG HELPER  – códigos ISO de los países del Mundial 2026
    ============================================================ */
-const FLAG = {
+const FLAG = paises??{
   "México": "mx", "Sudáfrica": "za", "Corea del Sur": "kr", "Chequia": "cz",
   "Suiza": "ch", "Canadá": "ca", "Bosnia y Herz.": "ba", "Catar": "qa",
   "Estados Unidos": "us", "Uruguay": "uy", "Senegal": "sn", "Gales": "gb-wls",

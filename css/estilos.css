@@ -52,6 +52,26 @@
     text-transform:uppercase;
   }
   .brand h1 span{color:var(--gold);}
+  .link{
+    align-self: center;
+    align-items: center;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.04em;
+    background:transparent;
+    border-bottom:1px solid var(--text-primary);
+    border-top:1px solid var(--text-primary);
+    color:var(--text-primary);
+    padding:7px 12px;
+    border-radius:3px;
+    cursor:pointer;
+    text-transform:uppercase;
+    text-decoration:none;
+  }
+  .link:hover{
+    color:var(--green);
+    border-color:var(--green-line);
+  }
   .terceros-toggle{
     align-self:center;
     display:flex;

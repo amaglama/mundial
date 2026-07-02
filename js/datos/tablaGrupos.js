@@ -37,7 +37,7 @@ const tablaGrupos ={
       {"pos": 1, "equipo": "Países Bajos", "pj": 3, "pg": 2, "pe": 1, "pp": 0, "gf": 10, "gc": 4, "dg": 6, "pts": 7},
       {"pos": 2, "equipo": "Japón", "pj": 3, "pg": 1, "pe": 2, "pp": 0, "gf": 7, "gc": 3, "dg": 4, "pts": 5},
       {"pos": 3, "equipo": "Suecia", "pj": 3, "pg": 1, "pe": 1, "pp": 1, "gf": 7, "gc": 7, "dg": 0, "pts": 4},
-      {"pos": 4, "equipo": "Tunicia", "pj": 3, "pg": 0, "pe": 0, "pp": 3, "gf": 2, "gc": 12, "dg": -10, "pts": 0}
+      {"pos": 4, "equipo": "Túnez", "pj": 3, "pg": 0, "pe": 0, "pp": 3, "gf": 2, "gc": 12, "dg": -10, "pts": 0}
     ],
     "Grupo G": [
       {"pos": 1, "equipo": "Egipto", "pj": 3, "pg": 1, "pe": 2, "pp": 0, "gf": 5, "gc": 3, "dg": 2, "pts": 5},
