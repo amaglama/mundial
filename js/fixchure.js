@@ -71,7 +71,7 @@ async function loadMatches(){
     const rows = await loadViaJSONP(CONFIG.MATCHES_SHEET_ID, CONFIG.MATCHES_GID);
     const header = rows[0];
     const find = (...names) => { for(const n of names){ const i = header.indexOf(n); if(i>-1) return i; } return -1; };
-    const idx = { id: find("id"), local: find("equipo1"), gl: find("goles1"), pl: find("penales1"), gv: find("goles2"), visitante: find("equipo2"), pv: find("penales2") };
+    const idx = { id: find("id"), local: find("equipo1"), gl: find("goles1"), pl: find("penales1"), gv: find("goles2"), visitante: find("equipo2"), pv: find("penales2"), estado: find("estado"), tipo: find("tipo") };
     if(idx.id===-1 || idx.local===-1 || idx.visitante===-1) throw new Error("No se encontraron las columnas ID, EQUIPO1 y EQUIPO2 en la primera fila.");
 
     const dataRows = rows.slice(1).filter(r => r.some(c=>String(c).trim()!==""));
@@ -80,12 +80,17 @@ async function loadMatches(){
       const gv = idx.gv>-1 ? (r[idx.gv] ?? "") : "";
       const pl = idx.pl>-1 ? (r[idx.pl] ?? "") : "";
       const pv = idx.pv>-1 ? (r[idx.pv] ?? "") : "";
+      const estado = idx.estado>-1 ? (r[idx.estado] ?? -1) : -1;
+      const tipo = idx.tipo>-1 ? (r[idx.tipo] ?? "") : "";
+      
       return {
         id: r[idx.id], local: r[idx.local], visitante: r[idx.visitante],
         gl: String(gl), gv: String(gv),
         pl: String(pl), pv: String(pv),
         origGl: String(gl), origGv: String(gv),
-        origPl: String(pl), origPv: String(pv)
+        origPl: String(pl), origPv: String(pv),
+        estado: Number(estado)?? -1,
+        tipo: String(tipo)
       };
     });
     renderMatches();
@@ -109,32 +114,46 @@ function renderMatches(){
     return;
   }
   list.innerHTML = matches.map((m,i)=>`
-    <div class="match" data-i="${i}">
+    <div class="match ${m.estado>0?m.tipo:''}" data-i="${i}">
         <div class="reglamentario">
             <div class="num">${escapeHtml(m.id)}</div>
             <div class="team local">${escapeHtml(m.local)} ${paises[m.local] ? `<img class="flag" src="https://flagcdn.com/h40/${escapeHtml(paises[m.local])}.png" alt="" loading="lazy" onerror="this.style.visibility='hidden'">` : "<div class='ph right'></div>"}</div>
-            <input class="score gl" type="number" min="0" max="20" inputmode="numeric" value="${escapeHtml(m.gl)}" aria-label="Goles ${escapeHtml(m.local)}">
+            ${m.estado<1?
+              `<input class="score gl" type="number" min="0" max="20" inputmode="numeric" value="${escapeHtml(m.gl)}" aria-label="Goles ${escapeHtml(m.local)}">`
+              :`<span class="text-right" aria-label="Goles ${escapeHtml(m.local)}">${escapeHtml(m.gl)}</span>`
+            }
             <div class="vs">–</div>
-            <input class="score gv" type="number" min="0" max="20" inputmode="numeric" value="${escapeHtml(m.gv)}" aria-label="Goles ${escapeHtml(m.visitante)}">
+            ${m.estado<1?
+              `<input class="score gv" type="number" min="0" max="20" inputmode="numeric" value="${escapeHtml(m.gv)}" aria-label="Goles ${escapeHtml(m.visitante)}">`
+              :`<span aria-label="Goles ${escapeHtml(m.visitante)}">${escapeHtml(m.gv)}</span>`
+            }
             <div class="team visit">${paises[m.visitante] ? `<img class="flag" src="https://flagcdn.com/h40/${escapeHtml(paises[m.visitante])}.png" alt="" loading="lazy" onerror="this.style.visibility='hidden'">`:"<div class='ph left'></div>"} ${escapeHtml(m.visitante)}</div>
-            <div class="row-status" data-status></div>
+            <div class="row-status" data-status>${m.estado<1 ? '':'Finalizado'}</div>
         </div>
         <div class="penales nones">
             <div></div>
-            <div class="penales-label">Penales</div>
-            <input class="score pl" type="number" min="0" max="20" inputmode="numeric" value="${escapeHtml(m.pl)}" aria-label="Penales ${escapeHtml(m.local)}">
+            <div class="penales-label">Penales </div>
+            ${m.estado<1?
+            `<input class="score pl" type="number" min="0" max="20" inputmode="numeric" value="${escapeHtml(m.pl)}" aria-label="Penales ${escapeHtml(m.local)}">`
+            :`<span class="text-right" aria-label="Penales ${escapeHtml(m.local)}">${escapeHtml(m.pl)}</span>`
+            }
             <div class="vs">–</div>
-            <input class="score pv" type="number" min="0" max="20" inputmode="numeric" value="${escapeHtml(m.pv)}" aria-label="Penales ${escapeHtml(m.visitante)}">
+            ${m.estado<1?
+              `<input class="score pv" type="number" min="0" max="20" inputmode="numeric" value="${escapeHtml(m.pv)}" aria-label="Penales ${escapeHtml(m.visitante)}">`
+              :`<span aria-label="Penales ${escapeHtml(m.visitante)}">${escapeHtml(m.pv)}</span>`
+            }
         </div>
     </div>
   `).join("");
 
   list.querySelectorAll(".match").forEach(el=>{
     const i = Number(el.dataset.i);
-    el.querySelector(".gl").addEventListener("input", e=>{ matches[i].gl = e.target.value; refreshRow(i); });
-    el.querySelector(".pl").addEventListener("input", e=>{ matches[i].pl = e.target.value; refreshRow(i); });
-    el.querySelector(".gv").addEventListener("input", e=>{ matches[i].gv = e.target.value; refreshRow(i); });
-    el.querySelector(".pv").addEventListener("input", e=>{ matches[i].pv = e.target.value; refreshRow(i); });
+    if(el.querySelectorAll("input").length!=0) {
+      el.querySelector(".gl").addEventListener("input", e=>{ matches[i].gl = e.target.value; refreshRow(i); });
+      el.querySelector(".pl").addEventListener("input", e=>{ matches[i].pl = e.target.value; refreshRow(i); });
+      el.querySelector(".gv").addEventListener("input", e=>{ matches[i].gv = e.target.value; refreshRow(i); });
+      el.querySelector(".pv").addEventListener("input", e=>{ matches[i].pv = e.target.value; refreshRow(i); });
+    }
   });
   matches.forEach((m,i)=>refreshRow(i));
 }
@@ -165,7 +184,7 @@ function refreshRow(i){
     el.classList.add("dirty");
     statusEl.textContent = "sin guardar";
   } else {
-    statusEl.textContent = "";
+    statusEl.textContent = m.tipo.toUpperCase();
   }
   defPenales(i, el);
   updateToolbar();
